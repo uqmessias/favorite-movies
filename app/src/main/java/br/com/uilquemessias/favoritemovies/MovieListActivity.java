@@ -1,51 +1,99 @@
 package br.com.uilquemessias.favoritemovies;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
 
-public class MovieListActivity extends AppCompatActivity {
+import br.com.uilquemessias.favoritemovies.services.MovieApi;
+import br.com.uilquemessias.favoritemovies.services.models.MovieResult;
+
+public class MovieListActivity extends AppCompatActivity implements MovieApi.MovieResultListener {
+
+    private static final String SPINNER_ITEM_TOP_RATED = "Top rated";
+    private static final String SPINNER_ITEM_MOST_POPULAR = "Most popular";
+    private static final String TAG = "MovieListActivity";
+
+    private TextView mTvError;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mTvError = (TextView) findViewById(R.id.tv_error);
+
+        Spinner spinnerOrderBy = (Spinner) findViewById(R.id.sp_order_by);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item,
+                new String[]{SPINNER_ITEM_TOP_RATED, SPINNER_ITEM_MOST_POPULAR}
+        );
+        spinnerOrderBy.setAdapter(spinnerAdapter);
+        spinnerOrderBy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String itemSelected = (String) parent.getItemAtPosition(position);
+                if (!TextUtils.isEmpty(itemSelected)) {
+                    if (itemSelected.equals(SPINNER_ITEM_TOP_RATED)) {
+                        Log.d(TAG, "top rated selected");
+                        tryShowTopRated();
+                        return;
+                    }
+
+                    if (itemSelected.equals(SPINNER_ITEM_MOST_POPULAR)) {
+                        Log.d(TAG, "most popular selected");
+                        tryShowMostPopular();
+                        return;
+                    }
+                }
+
+                Log.d(TAG, "wrong selection!");
+                showError();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d(TAG, "nothing selected!");
             }
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_movie_list, menu);
-        return true;
+    private void tryShowTopRated() {
+        MovieApi.instance().getTopRatedMovies(this);
+    }
+
+    private void tryShowMostPopular() {
+        MovieApi.instance().getPopularMovies(this);
+    }
+
+    private void showMovies() {
+        // do something
+        Log.d(TAG, "success!");
+    }
+
+    private void showError() {
+        mTvError.setVisibility(View.VISIBLE);
+        Log.d(TAG, "something went wrong!");
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void onMovieResult(MovieResult movies) {
+        Log.d(TAG, "total movies: " + movies.getTotalResults());
+        showMovies();
+    }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    @Override
+    public void onFailure(Throwable exception) {
+        Log.d(TAG, "something went wrong!", exception);
+        showError();
     }
 }

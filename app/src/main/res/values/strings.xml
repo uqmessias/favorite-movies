@@ -90,4 +90,5 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">Settings</string>
+    <string name="error_something_went_wrong">Something went wrong! Please try again in a few moment!</string>
 </resources>
