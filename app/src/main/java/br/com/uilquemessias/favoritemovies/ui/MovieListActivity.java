@@ -1,4 +1,4 @@
-package br.com.uilquemessias.favoritemovies;
+package br.com.uilquemessias.favoritemovies.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.MovieApi;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
 import br.com.uilquemessias.favoritemovies.services.models.MovieResult;
