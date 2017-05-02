@@ -23,7 +23,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     private static final String TAG = "MoviesAdapter";
     public static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w185";
-    public static final String BASE_IMAGE_LARGER_URL = "http://image.tmdb.org/t/p/w780";
+    public static final String BASE_IMAGE_LARGER_URL = "http://image.tmdb.org/t/p/w342";
 
     private final ListItemClickListener mOnClickListener;
     private List<Movie> mMovies;

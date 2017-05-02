@@ -23,6 +23,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private TextView mTvReleaseDate;
     private TextView mTvOverview;
     private TextView mTvVoteAverage;
+    private Picasso mPicasso;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
 
         bindViews();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mPicasso != null) {
+            mPicasso.cancelRequest(mIvPoster);
+            mPicasso.cancelRequest(mIvBackdrop);
+            mPicasso = null;
+        }
+
+        super.onDestroy();
     }
 
     private void bindViews() {
@@ -57,12 +69,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
             final Uri urlPoster = Uri.parse(MoviesAdapter.BASE_IMAGE_URL + movie.getPosterPath());
             final Uri urlBackdrop = Uri.parse(MoviesAdapter.BASE_IMAGE_LARGER_URL + movie.getBackdropPath());
 
-            Picasso.with(this)
-                    .load(urlPoster)
+            mPicasso = Picasso.with(this);
+            mPicasso.load(urlPoster)
                     .placeholder(R.drawable.movie_poster)
                     .into(mIvPoster);
-            Picasso.with(this)
-                    .load(urlBackdrop)
+            mPicasso.load(urlBackdrop)
                     .placeholder(R.drawable.movie_backdrop)
                     .into(mIvBackdrop);
 

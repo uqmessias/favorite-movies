@@ -161,10 +161,10 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     @Override
     public void onListItemClick(Movie movie) {
 
-        String str = movie == null ? "No movie data" : String.format("the movie '%s' launched at '%s' (image: '%s') rated with %.2f and synopsis:\n %s",
+        String str = movie == null ? "No movie data" : String.format("the movie '%s' launched at '%s' (poster: '%s' and backdrop: '%s') rated with %.2f and synopsis:\n %s",
                 movie.getTitle(), movie.getReleaseDate(),
-                movie.getPosterPath(), movie.getVoteAverage(),
-                movie.getOverview());
+                movie.getPosterPath(), movie.getBackdropPath(),
+                movie.getVoteAverage(), movie.getOverview());
 
         Log.d(TAG, str);
         final Intent movieIntent = new Intent(this, MovieDetailsActivity.class);
