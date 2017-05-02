@@ -3,8 +3,8 @@ package br.com.uilquemessias.favoritemovies.ui.adapters;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,14 +24,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     private static final String TAG = "MoviesAdapter";
     private static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w185";
 
+    private final ListItemClickListener mOnClickListener;
     private List<Movie> mMovies;
 
-    public MoviesAdapter(@NonNull final List<Movie> movies) {
-        mMovies = movies;
-    }
-
-    public MoviesAdapter() {
-        this(new ArrayList<Movie>());
+    public MoviesAdapter(final ListItemClickListener onClickItemListener) {
+        mMovies = new ArrayList<>();
+        mOnClickListener = onClickItemListener;
     }
 
     @Override
@@ -57,7 +55,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         notifyDataSetChanged();
     }
 
-    class MovieViewHolder extends RecyclerView.ViewHolder {
+    public interface ListItemClickListener {
+        void onListItemClick(final Movie movie);
+    }
+
+    class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView ivMoviePosterImage;
         TextView tvMovieTitle;
@@ -67,6 +69,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
             ivMoviePosterImage = (ImageView) itemView.findViewById(R.id.iv_movie_poster_image);
             tvMovieTitle = (TextView) itemView.findViewById(R.id.tv_movie_title);
+
+            itemView.setOnClickListener(this);
         }
 
 
@@ -76,6 +80,18 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
                     .load(url)
                     .into(ivMoviePosterImage);
             tvMovieTitle.setText(movie.getTitle());
+        }
+
+        @Override
+        public void onClick(View v) {
+            final ListItemClickListener listener = mOnClickListener;
+
+            if (listener != null && mMovies != null && !mMovies.isEmpty()) {
+                final int position = getAdapterPosition();
+                final Movie movie = mMovies.get(position);
+                Log.d(TAG, "Item position" + position + " has been clicked");
+                listener.onListItemClick(movie);
+            }
         }
     }
 

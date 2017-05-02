@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -22,7 +23,7 @@ import br.com.uilquemessias.favoritemovies.services.models.MovieResult;
 import br.com.uilquemessias.favoritemovies.ui.adapters.MoviesAdapter;
 import br.com.uilquemessias.favoritemovies.utils.ViewUtils;
 
-public class MovieListActivity extends AppCompatActivity implements MovieApi.MovieResultListener {
+public class MovieListActivity extends AppCompatActivity implements MovieApi.MovieResultListener, MoviesAdapter.ListItemClickListener {
 
     private static final String SPINNER_ITEM_TOP_RATED = "Top rated";
     private static final String SPINNER_ITEM_MOST_POPULAR = "Most popular";
@@ -33,6 +34,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     private TextView mTvEmpty;
     private RecyclerView mRvMovieList;
     private MoviesAdapter mMoviesAdapter;
+    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +50,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
         mRvMovieList = (RecyclerView) findViewById(R.id.rv_movie_list);
 
         final int colSpan = getResources().getInteger(R.integer.col_span);
-        mMoviesAdapter = new MoviesAdapter();
+        mMoviesAdapter = new MoviesAdapter(this);
         mRvMovieList.setLayoutManager(new GridLayoutManager(this, colSpan));
         mRvMovieList.setHasFixedSize(true);
         mRvMovieList.setAdapter(mMoviesAdapter);
@@ -151,5 +153,20 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     public void onFailure(Throwable exception) {
         Log.d(TAG, "something went wrong!", exception);
         showError();
+    }
+
+    @Override
+    public void onListItemClick(Movie movie) {
+        String str = String.format("the movie '%s' launched at '%s' (image: '%s') rated with %f.2 and synopsis:\n %s",
+                movie.getTitle(), movie.getReleaseDate(),
+                movie.getPosterPath(), movie.getVoteAverage(),
+                movie.getOverview());
+       
+        if (mToast != null) {
+            mToast.cancel();
+        }
+
+        mToast = Toast.makeText(this, str, Toast.LENGTH_LONG);
+        mToast.show();
     }
 }
