@@ -1,5 +1,6 @@
 package br.com.uilquemessias.favoritemovies.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -30,12 +31,13 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     private static final String SPINNER_ITEM_MOST_POPULAR = "Most popular";
     private static final String TAG = "MovieListActivity";
 
+    public static final String SELECTED_MOVIE = "SELECTED_MOVIE";
+
     private ProgressBar mPbLoading;
     private TextView mTvError;
     private TextView mTvEmpty;
     private RecyclerView mRvMovieList;
     private MoviesAdapter mMoviesAdapter;
-    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,16 +160,15 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
 
     @Override
     public void onListItemClick(Movie movie) {
-        String str = String.format("the movie '%s' launched at '%s' (image: '%s') rated with %f.2 and synopsis:\n %s",
+
+        String str = movie == null ? "No movie data" : String.format("the movie '%s' launched at '%s' (image: '%s') rated with %.2f and synopsis:\n %s",
                 movie.getTitle(), movie.getReleaseDate(),
                 movie.getPosterPath(), movie.getVoteAverage(),
                 movie.getOverview());
-       
-        if (mToast != null) {
-            mToast.cancel();
-        }
 
-        mToast = Toast.makeText(this, str, Toast.LENGTH_LONG);
-        mToast.show();
+        Log.d(TAG, str);
+        final Intent movieIntent = new Intent(this, MovieDetailsActivity.class);
+        movieIntent.putExtra(SELECTED_MOVIE, movie);
+        startActivity(movieIntent);
     }
 }

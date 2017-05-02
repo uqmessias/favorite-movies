@@ -9,7 +9,7 @@
         android:id="@+id/iv_movie_poster_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:src="@drawable/one_flew_over_the_cuckoo_s_nest" />
+        tools:src="@drawable/movie_poster" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,6 +17,7 @@
         android:layout_gravity="bottom"
         android:background="@color/blackTransparent"
         android:orientation="vertical"
+        android:gravity="bottom"
         android:padding="2dp">
 
         <TextView

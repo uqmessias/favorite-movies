@@ -22,7 +22,8 @@ import br.com.uilquemessias.favoritemovies.services.models.Movie;
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
 
     private static final String TAG = "MoviesAdapter";
-    private static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w185";
+    public static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w185";
+    public static final String BASE_IMAGE_LARGER_URL = "http://image.tmdb.org/t/p/w780";
 
     private final ListItemClickListener mOnClickListener;
     private List<Movie> mMovies;
@@ -78,6 +79,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
             final Uri url = Uri.parse(BASE_IMAGE_URL + movie.getPosterPath());
             Picasso.with(ivMoviePosterImage.getContext())
                     .load(url)
+                    .placeholder(R.drawable.movie_poster)
                     .into(ivMoviePosterImage);
             tvMovieTitle.setText(movie.getTitle());
         }
