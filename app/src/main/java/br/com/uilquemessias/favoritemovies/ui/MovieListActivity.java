@@ -24,6 +24,10 @@ import br.com.uilquemessias.favoritemovies.services.models.Movie;
 import br.com.uilquemessias.favoritemovies.services.models.MovieResult;
 import br.com.uilquemessias.favoritemovies.ui.adapters.MoviesAdapter;
 import br.com.uilquemessias.favoritemovies.utils.ViewUtils;
+import butterknife.BindInt;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class MovieListActivity extends AppCompatActivity implements MovieApi.MovieResultListener, MoviesAdapter.ListItemClickListener {
 
@@ -35,33 +39,39 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
 
     public static final String SELECTED_MOVIE = "SELECTED_MOVIE";
 
-    private Spinner mSpinnerOrderBy;
-    private ProgressBar mPbLoading;
-    private TextView mTvError;
-    private TextView mTvEmpty;
-    private RecyclerView mRvMovieList;
+    @BindView(R.id.sp_order_by)
+    Spinner mSpinnerOrderBy;
+    @BindView(R.id.pb_loading)
+    ProgressBar mPbLoading;
+    @BindView(R.id.tv_error)
+    TextView mTvError;
+    @BindView(R.id.tv_empty)
+    TextView mTvEmpty;
+    @BindView(R.id.rv_movie_list)
+    RecyclerView mRvMovieList;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+
+    @BindInt(R.integer.col_span)
+    int mColSpan;
+
     private MoviesAdapter mMoviesAdapter;
     private boolean mIsFirstSelection = true;
+    private Unbinder mUnbinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
+        mUnbinder = ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        mPbLoading = (ProgressBar) findViewById(R.id.pb_loading);
-        mTvError = (TextView) findViewById(R.id.tv_error);
-        mTvEmpty = (TextView) findViewById(R.id.tv_empty);
-        mRvMovieList = (RecyclerView) findViewById(R.id.rv_movie_list);
+        setSupportActionBar(mToolbar);
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
                 new String[]{SPINNER_ITEM_TOP_RATED, SPINNER_ITEM_MOST_POPULAR}
         );
 
-        mSpinnerOrderBy = (Spinner) findViewById(R.id.sp_order_by);
         mSpinnerOrderBy.setAdapter(spinnerAdapter);
         mSpinnerOrderBy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -97,7 +107,6 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
             }
         });
 
-        final int colSpan = getResources().getInteger(R.integer.col_span);
         int orderSelectionPosition = 0;
 
         if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_ORDER)) {
@@ -117,10 +126,19 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
             mMoviesAdapter = new MoviesAdapter(this, movies);
         }
 
-        mRvMovieList.setLayoutManager(new GridLayoutManager(this, colSpan));
+        mRvMovieList.setLayoutManager(new GridLayoutManager(this, mColSpan));
         mRvMovieList.setHasFixedSize(true);
-        mRvMovieList.addItemDecoration(new MoviesAdapter.GridSpacingItemDecoration(colSpan, 20, true));
+        mRvMovieList.addItemDecoration(new MoviesAdapter.GridSpacingItemDecoration(mColSpan, 20, true));
         mRvMovieList.setAdapter(mMoviesAdapter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mUnbinder != null) {
+            mUnbinder.unbind();
+        }
+
+        super.onDestroy();
     }
 
     @Override

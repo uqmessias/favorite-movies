@@ -18,6 +18,8 @@ import java.util.List;
 
 import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
 
@@ -71,18 +73,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        @BindView(R.id.iv_movie_poster_image)
         ImageView ivMoviePosterImage;
+        @BindView(R.id.tv_movie_title)
         TextView tvMovieTitle;
 
         public MovieViewHolder(View itemView) {
             super(itemView);
-
-            ivMoviePosterImage = (ImageView) itemView.findViewById(R.id.iv_movie_poster_image);
-            tvMovieTitle = (TextView) itemView.findViewById(R.id.tv_movie_title);
-
             itemView.setOnClickListener(this);
+            ButterKnife.bind(this, itemView);
         }
-
 
         void bind(final Movie movie) {
             final Uri url = Uri.parse(BASE_IMAGE_URL + movie.getPosterPath());

@@ -2,7 +2,6 @@ package br.com.uilquemessias.favoritemovies.ui;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -14,16 +13,27 @@ import com.squareup.picasso.Picasso;
 import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
 import br.com.uilquemessias.favoritemovies.ui.adapters.MoviesAdapter;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
-    private ImageView mIvBackdrop;
-    private ImageView mIvPoster;
-    private TextView mTvTitle;
-    private TextView mTvReleaseDate;
-    private TextView mTvOverview;
-    private TextView mTvVoteAverage;
+    @BindView(R.id.iv_movie_backdrop)
+    ImageView mIvBackdrop;
+    @BindView(R.id.iv_movie_poster)
+    ImageView mIvPoster;
+    @BindView(R.id.tv_movie_title)
+    TextView mTvTitle;
+    @BindView(R.id.tv_movie_release_date)
+    TextView mTvReleaseDate;
+    @BindView(R.id.tv_movie_overview)
+    TextView mTvOverview;
+    @BindView(R.id.tv_movie_vote_average)
+    TextView mTvVoteAverage;
+
     private Picasso mPicasso;
+    private Unbinder mUnbinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +47,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
+        mUnbinder = ButterKnife.bind(this);
+
         bindViews();
     }
 
@@ -48,17 +60,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mPicasso = null;
         }
 
+        if (mUnbinder != null) {
+            mUnbinder.unbind();
+        }
+
         super.onDestroy();
     }
 
     private void bindViews() {
-        mIvBackdrop = findView(R.id.iv_movie_backdrop);
-        mIvPoster = findView(R.id.iv_movie_poster);
-        mTvTitle = findView(R.id.tv_movie_title);
-        mTvReleaseDate = findView(R.id.tv_movie_release_date);
-        mTvVoteAverage = findView(R.id.tv_movie_vote_average);
-        mTvOverview = findView(R.id.tv_movie_overview);
-
         if (getIntent().hasExtra(MovieListActivity.SELECTED_MOVIE)) {
             final Movie movie = getIntent().getParcelableExtra(MovieListActivity.SELECTED_MOVIE);
 
@@ -82,10 +91,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mTvVoteAverage.setText(String.format("%.2f", movie.getVoteAverage()));
             mTvOverview.setText(movie.getOverview());
         }
-    }
-
-    private <T> T findView(@IdRes int id) {
-        return (T) findViewById(id);
     }
 
     @Override
