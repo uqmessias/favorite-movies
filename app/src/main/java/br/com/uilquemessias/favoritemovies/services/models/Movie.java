@@ -12,15 +12,7 @@ public class Movie implements Parcelable {
 
         @SuppressWarnings({"unchecked"})
         public Movie createFromParcel(Parcel in) {
-            Movie instance = new Movie();
-            instance.posterPath = in.readString();
-            instance.backdropPath = in.readString();
-
-            instance.title = in.readString();
-            instance.releaseDate = in.readString();
-            instance.voteAverage = in.readFloat();
-            instance.overview = in.readString();
-            return instance;
+            return new Movie(in);
         }
 
         @Override
@@ -41,6 +33,20 @@ public class Movie implements Parcelable {
     private String backdropPath;
     @SerializedName("vote_average")
     private Float voteAverage;
+
+    public Movie() {
+        //
+    }
+
+    public Movie(Parcel in) {
+        posterPath = in.readString();
+        backdropPath = in.readString();
+
+        title = in.readString();
+        releaseDate = in.readString();
+        voteAverage = in.readFloat();
+        overview = in.readString();
+    }
 
     public String getPosterPath() {
         return posterPath;

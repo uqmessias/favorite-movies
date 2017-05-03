@@ -14,9 +14,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.MovieApi;
@@ -30,14 +30,18 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     private static final String SPINNER_ITEM_TOP_RATED = "Top rated";
     private static final String SPINNER_ITEM_MOST_POPULAR = "Most popular";
     private static final String TAG = "MovieListActivity";
+    private static final String MOVIES = "MOVIES";
+    private static final String SELECTED_ORDER = "SELECTED_ORDER";
 
     public static final String SELECTED_MOVIE = "SELECTED_MOVIE";
 
+    private Spinner mSpinnerOrderBy;
     private ProgressBar mPbLoading;
     private TextView mTvError;
     private TextView mTvEmpty;
     private RecyclerView mRvMovieList;
     private MoviesAdapter mMoviesAdapter;
+    private boolean mIsFirstSelection = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,22 +56,22 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
         mTvEmpty = (TextView) findViewById(R.id.tv_empty);
         mRvMovieList = (RecyclerView) findViewById(R.id.rv_movie_list);
 
-        final int colSpan = getResources().getInteger(R.integer.col_span);
-        mMoviesAdapter = new MoviesAdapter(this);
-        mRvMovieList.setLayoutManager(new GridLayoutManager(this, colSpan));
-        mRvMovieList.setHasFixedSize(true);
-        mRvMovieList.setAdapter(mMoviesAdapter);
-        mRvMovieList.addItemDecoration(new MoviesAdapter.GridSpacingItemDecoration(colSpan, 20, true));
-
-        Spinner spinnerOrderBy = (Spinner) findViewById(R.id.sp_order_by);
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
                 new String[]{SPINNER_ITEM_TOP_RATED, SPINNER_ITEM_MOST_POPULAR}
         );
-        spinnerOrderBy.setAdapter(spinnerAdapter);
-        spinnerOrderBy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+        mSpinnerOrderBy = (Spinner) findViewById(R.id.sp_order_by);
+        mSpinnerOrderBy.setAdapter(spinnerAdapter);
+        mSpinnerOrderBy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mIsFirstSelection) {
+                    Log.d(TAG, "passed out the first time");
+                    mIsFirstSelection = false;
+                    return;
+                }
+
                 String itemSelected = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(itemSelected)) {
                     if (itemSelected.equals(SPINNER_ITEM_TOP_RATED)) {
@@ -92,6 +96,40 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
                 Log.d(TAG, "nothing selected!");
             }
         });
+
+        final int colSpan = getResources().getInteger(R.integer.col_span);
+        int orderSelectionPosition = 0;
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_ORDER)) {
+            orderSelectionPosition = savedInstanceState.getInt(SELECTED_ORDER);
+            Log.d(TAG, "order saved in position: " + orderSelectionPosition);
+        }
+
+        if (savedInstanceState == null || !savedInstanceState.containsKey(MOVIES + orderSelectionPosition)) {
+            mMoviesAdapter = new MoviesAdapter(this);
+            Log.d(TAG, "before select order by position");
+            mSpinnerOrderBy.setSelection(orderSelectionPosition);
+            mIsFirstSelection = false;
+        } else {
+            final List<Movie> movies = savedInstanceState.getParcelableArrayList(MOVIES + orderSelectionPosition);
+            Log.d(TAG, movies.size() + " items restored from bundle");
+
+            mMoviesAdapter = new MoviesAdapter(this, movies);
+        }
+
+        mRvMovieList.setLayoutManager(new GridLayoutManager(this, colSpan));
+        mRvMovieList.setHasFixedSize(true);
+        mRvMovieList.addItemDecoration(new MoviesAdapter.GridSpacingItemDecoration(colSpan, 20, true));
+        mRvMovieList.setAdapter(mMoviesAdapter);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        final int positionOrder = mSpinnerOrderBy.getSelectedItemPosition();
+        Log.d(TAG, "save order position: " + positionOrder);
+        outState.putInt(SELECTED_ORDER, positionOrder);
+        outState.putParcelableArrayList(MOVIES + positionOrder, (ArrayList<Movie>) mMoviesAdapter.getMovies());
+        super.onSaveInstanceState(outState);
     }
 
     private void tryShowTopRated() {
@@ -141,7 +179,6 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
             return;
         }
 
-        Log.d(TAG, "total movies: " + movies.getTotalResults());
         if (movies.getTotalResults() >= 1) {
             mMoviesAdapter.setMovies(movies.getMovies());
             showMovies();

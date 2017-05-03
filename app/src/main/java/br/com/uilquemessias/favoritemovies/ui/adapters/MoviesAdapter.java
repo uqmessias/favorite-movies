@@ -28,9 +28,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     private final ListItemClickListener mOnClickListener;
     private List<Movie> mMovies;
 
-    public MoviesAdapter(final ListItemClickListener onClickItemListener) {
-        mMovies = new ArrayList<>();
+    public MoviesAdapter(final ListItemClickListener onClickItemListener, List<Movie> movies) {
+        Log.d(TAG, movies.size() + " items loaded");
+        mMovies = movies;
         mOnClickListener = onClickItemListener;
+    }
+
+    public MoviesAdapter(final ListItemClickListener onClickItemListener) {
+        this(onClickItemListener, new ArrayList<Movie>());
     }
 
     @Override
@@ -54,6 +59,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     public void setMovies(List<Movie> movies) {
         this.mMovies = movies;
         notifyDataSetChanged();
+    }
+
+    public List<Movie> getMovies() {
+        return mMovies;
     }
 
     public interface ListItemClickListener {
