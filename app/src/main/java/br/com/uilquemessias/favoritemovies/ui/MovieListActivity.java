@@ -193,7 +193,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     }
 
     @Override
-    public void onMovieResult(MovieResult movies) {
+    public void onSuccessResult(MovieResult movies) {
         if (movies == null || movies.getMovies() == null) {
             showError();
             return;

@@ -2,6 +2,8 @@ package br.com.uilquemessias.favoritemovies.services;
 
 import br.com.uilquemessias.favoritemovies.BuildConfig;
 import br.com.uilquemessias.favoritemovies.services.models.MovieResult;
+import br.com.uilquemessias.favoritemovies.services.models.ReviewResult;
+import br.com.uilquemessias.favoritemovies.services.models.VideoResult;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,8 +42,16 @@ public final class MovieApi {
         executeCall(mService.getPopularMovies(BuildConfig.THE_MOVIE_DB_APP_KEY), movieListener);
     }
 
-    private void executeCall(final Call<MovieResult> call, final MovieResultListener movieListener) {
-        if (movieListener == null) {
+    public void getVideosByMovies(final int movieId, final VideoResultListener videoListener) {
+        executeCall(mService.getVideosByMovies(movieId, BuildConfig.THE_MOVIE_DB_APP_KEY), videoListener);
+    }
+
+    public void getReviewsByMovies(final int movieId, final ReviewResultListener reviewListener) {
+        executeCall(mService.getReviewsByMovies(movieId, BuildConfig.THE_MOVIE_DB_APP_KEY), reviewListener);
+    }
+
+    private <T> void executeCall(final Call<T> call, final ResultListener<T> listener) {
+        if (listener == null) {
             return;
         }
 
@@ -49,30 +59,44 @@ public final class MovieApi {
             mLastCall.cancel();
         }
 
-        mLastCall = call;
+        try {
+            mLastCall = (Call<MovieResult>) call;
+        } finally {
+            // the last call doesn't exists
+        }
 
-        mLastCall.enqueue(new Callback<MovieResult>() {
+        call.enqueue(new Callback<T>() {
             @Override
-            public void onResponse(Call<MovieResult> call, Response<MovieResult> response) {
+            public void onResponse(Call<T> call, Response<T> response) {
                 if (response.isSuccessful()) {
-                    movieListener.onMovieResult(response.body());
+                    listener.onSuccessResult(response.body());
                 } else {
-                    movieListener.onFailure(new RuntimeException(response.message()));
+                    listener.onFailure(new RuntimeException(response.message()));
                 }
             }
 
             @Override
-            public void onFailure(Call<MovieResult> call, Throwable t) {
-                movieListener.onFailure(t);
+            public void onFailure(Call<T> call, Throwable t) {
+                listener.onFailure(t);
             }
         });
-
     }
 
-    public interface MovieResultListener {
-
-        void onMovieResult(MovieResult movies);
+    public interface ResultListener<T> {
+        void onSuccessResult(T results);
 
         void onFailure(Throwable exception);
+    }
+
+    public interface MovieResultListener extends ResultListener<MovieResult> {
+        // listener for Movies
+    }
+
+    public interface VideoResultListener extends ResultListener<VideoResult> {
+        // listener for Videos
+    }
+
+    public interface ReviewResultListener extends ResultListener<ReviewResult> {
+        // listener for Reviews
     }
 }

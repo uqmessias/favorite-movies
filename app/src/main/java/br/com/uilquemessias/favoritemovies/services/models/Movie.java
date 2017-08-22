@@ -21,6 +21,8 @@ public class Movie implements Parcelable {
         }
     };
 
+    @Expose
+    private int id;
     @SerializedName("poster_path")
     private String posterPath;
     @Expose
@@ -39,6 +41,7 @@ public class Movie implements Parcelable {
     }
 
     public Movie(Parcel in) {
+        id = in.readInt();
         posterPath = in.readString();
         backdropPath = in.readString();
 
@@ -46,6 +49,10 @@ public class Movie implements Parcelable {
         releaseDate = in.readString();
         voteAverage = in.readFloat();
         overview = in.readString();
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getPosterPath() {
@@ -79,6 +86,7 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(posterPath);
         dest.writeString(backdropPath);
 
