@@ -1,5 +1,6 @@
 package br.com.uilquemessias.favoritemovies.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +12,6 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -195,7 +195,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
 
     @Override
     public void onListItemClick(String key, Uri videoUri) {
-        Toast.makeText(this, "key: " + key + " - videoUri: " + videoUri, Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "key: " + key + " - videoUri: " + videoUri);
+        final Intent youtubeIntent = new Intent(Intent.ACTION_VIEW, videoUri);
+        startActivity(youtubeIntent);
     }
 
     private void tryShowVideos() {
