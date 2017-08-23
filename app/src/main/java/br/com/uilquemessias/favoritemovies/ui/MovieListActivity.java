@@ -17,11 +17,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.MovieApi;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
 import br.com.uilquemessias.favoritemovies.services.models.MovieResult;
+import br.com.uilquemessias.favoritemovies.ui.adapters.GridSpacingItemDecoration;
 import br.com.uilquemessias.favoritemovies.ui.adapters.MoviesAdapter;
 import br.com.uilquemessias.favoritemovies.utils.ViewUtils;
 import butterknife.BindInt;
@@ -128,7 +130,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
 
         mRvMovieList.setLayoutManager(new GridLayoutManager(this, mColSpan));
         mRvMovieList.setHasFixedSize(true);
-        mRvMovieList.addItemDecoration(new MoviesAdapter.GridSpacingItemDecoration(mColSpan, 20, true));
+        mRvMovieList.addItemDecoration(new GridSpacingItemDecoration(mColSpan, 20, true));
         mRvMovieList.setAdapter(mMoviesAdapter);
     }
 
@@ -216,7 +218,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     @Override
     public void onListItemClick(Movie movie) {
 
-        String str = movie == null ? "No movie data" : String.format("the movie '%s' launched at '%s' (poster: '%s' and backdrop: '%s') rated with %.2f and synopsis:\n %s",
+        String str = movie == null ? "No movie data" : String.format(Locale.US, "the movie '%s' launched at '%s' (poster: '%s' and backdrop: '%s') rated with %.2f and synopsis:\n %s",
                 movie.getTitle(), movie.getReleaseDate(),
                 movie.getPosterPath(), movie.getBackdropPath(),
                 movie.getVoteAverage(), movie.getOverview());
