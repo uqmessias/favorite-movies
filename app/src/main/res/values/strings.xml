@@ -4,7 +4,11 @@
     <string name="text_empty">No movie was found!</string>
     <string name="text_movie_overview">High schoolers Mitsuha and Taki are complete strangers living separate lives. But one night, they suddenly switch places. Mitsuha wakes up in Taki’s body, and he in hers. This bizarre occurrence continues to happen randomly, and the two must adjust their lives around each other.</string>
     <string name="text_movie_overview_label">OVERVIEW</string>
+    <string name="text_movie_videos_label">VIDEOS</string>
+    <string name="text_movie_reviews_label">REVIEWS</string>
     <string name="text_movie_vote_average">8.84</string>
     <string name="text_movie_vote_average_label">Vote average:</string>
     <string name="text_movie_title">One Flew Over the Cuckoo\'s Nest</string>
+    <string name="text_error_there_is_no_video">There\'s no video to show!</string>
+    <string name="text_error_there_is_no_review">There\'s no review to show!</string>
 </resources>

@@ -2,7 +2,7 @@
 
 ## User Interface - Layout
 
-- [ ] Movie Details layout contains a section for displaying trailer videos and user reviews.
+- [x] Movie Details layout contains a section for displaying trailer videos and user reviews.
 
 ## User Interface - Function
 
