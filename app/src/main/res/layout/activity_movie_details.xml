@@ -142,10 +142,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 app:layoutManager="android.support.v7.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:spanCount="@integer/col_span"
-                tools:listitem="@layout/video_list_item" />
+                tools:listitem="@layout/video_list_item"
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/tv_there_is_no_video"
@@ -160,8 +162,8 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:visibility="gone"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:visibility="gone" />
         </FrameLayout>
 
         <TextView
@@ -182,10 +184,12 @@
                 android:id="@+id/rv_review_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:visibility="gone"
                 app:layoutManager="android.support.v7.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:spanCount="@integer/col_span"
-                tools:listitem="@layout/review_list_item" />
+                tools:listitem="@layout/review_list_item"
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/tv_there_is_no_review"
@@ -200,8 +204,8 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:visibility="gone"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:visibility="gone" />
         </FrameLayout>
     </LinearLayout>
 </ScrollView>

@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -14,15 +15,20 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import br.com.uilquemessias.favoritemovies.R;
+import br.com.uilquemessias.favoritemovies.services.MovieApi;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
-import br.com.uilquemessias.favoritemovies.services.models.Review;
+import br.com.uilquemessias.favoritemovies.services.models.ReviewResult;
+import br.com.uilquemessias.favoritemovies.services.models.Video;
+import br.com.uilquemessias.favoritemovies.services.models.VideoResult;
 import br.com.uilquemessias.favoritemovies.ui.adapters.MoviesAdapter;
 import br.com.uilquemessias.favoritemovies.ui.adapters.ReviewsAdapter;
 import br.com.uilquemessias.favoritemovies.ui.adapters.VideosAdapter;
+import br.com.uilquemessias.favoritemovies.utils.ViewUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -47,6 +53,14 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
     RecyclerView mRvVideoList;
     @BindView(R.id.rv_review_list)
     RecyclerView mRvReviewList;
+    @BindView(R.id.tv_there_is_no_video)
+    TextView mTvThereIsNoVideo;
+    @BindView(R.id.tv_there_is_no_review)
+    TextView mTvThereIsNoReview;
+    @BindView(R.id.pb_video_loading)
+    ProgressBar mPbVideoLoading;
+    @BindView(R.id.pb_review_loading)
+    ProgressBar mPbReviewLoading;
 
     private Movie mMovie;
 
@@ -55,6 +69,47 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
 
     private Picasso mPicasso;
     private Unbinder mUnbinder;
+    private MovieApi.VideoResultListener mVideoListener = new MovieApi.VideoResultListener() {
+        @Override
+        public void onSuccessResult(VideoResult results) {
+            final List<String> videoList = new ArrayList<>();
+
+            for (final Video video : results.getVideos()) {
+                if (Video.SITE_YOUTUBE.equalsIgnoreCase(video.getSite())) {
+                    videoList.add(video.getKey());
+                }
+            }
+
+            mVideosAdapter.setVideos(videoList);
+
+            if (videoList.isEmpty()) {
+                showNoVideos();
+            } else {
+                showVideos();
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable exception) {
+            showNoVideos();
+        }
+    };
+    private MovieApi.ReviewResultListener mReviewListener = new MovieApi.ReviewResultListener() {
+        @Override
+        public void onSuccessResult(ReviewResult results) {
+            mReviewsAdapter.setReviews(results.getReviews());
+            if (results.getReviews().isEmpty()) {
+                showNoReviews();
+            } else {
+                showReviews();
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable exception) {
+            showNoReviews();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,30 +137,17 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
 
         bindViews();
 
-        mVideosAdapter = new VideosAdapter(this, Arrays.asList(
-                "AFN67cRapmM", "HJUI2Il3xnI",
-                "pXXyJX2yy5Y", "mGNdqsTIMFc"
-        ));
+        mVideosAdapter = new VideosAdapter(this);
         mRvVideoList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mRvVideoList.setHasFixedSize(true);
         mRvVideoList.setAdapter(mVideosAdapter);
+        tryShowVideos();
 
-        final Review myReview = new Review();
-        myReview.setId("blablabla");
-        myReview.setAuthor("Uilque Messias");
-        myReview.setContent("I used to study a lot, but now I just broke my own record. I am studying more than never.\n\nBy the way, this movie is great!");
-
-        mReviewsAdapter = new ReviewsAdapter(Arrays.asList(
-                myReview, myReview,
-                myReview, myReview,
-                myReview, myReview,
-                myReview, myReview,
-                myReview, myReview,
-                myReview, myReview
-        ));
+        mReviewsAdapter = new ReviewsAdapter();
         mRvReviewList.setLayoutManager(new LinearLayoutManager(this));
         mRvReviewList.setHasFixedSize(true);
         mRvReviewList.setAdapter(mReviewsAdapter);
+        tryShowReviews();
     }
 
     @Override
@@ -154,5 +196,57 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
     @Override
     public void onListItemClick(String key, Uri videoUri) {
         Toast.makeText(this, "key: " + key + " - videoUri: " + videoUri, Toast.LENGTH_SHORT).show();
+    }
+
+    private void tryShowVideos() {
+        showLoadingVideos();
+        MovieApi.instance().getVideosByMovies(mMovie.getId(), mVideoListener);
+    }
+
+    private void showVideos() {
+        ViewUtils.getInstance()
+                .gone(mPbVideoLoading, mTvThereIsNoVideo)
+                .visible(mRvVideoList);
+        Log.d(TAG, "Showing videos");
+    }
+
+    private void showNoVideos() {
+        ViewUtils.getInstance()
+                .gone(mPbVideoLoading, mRvVideoList)
+                .visible(mTvThereIsNoVideo);
+        Log.d(TAG, "There's no reviews to be showed");
+    }
+
+    private void showLoadingVideos() {
+        ViewUtils.getInstance()
+                .gone(mTvThereIsNoVideo, mRvVideoList)
+                .visible(mPbVideoLoading);
+        Log.d(TAG, "loading videos");
+    }
+
+    private void tryShowReviews() {
+        showLoadingReviews();
+        MovieApi.instance().getReviewsByMovies(mMovie.getId(), mReviewListener);
+    }
+
+    private void showReviews() {
+        ViewUtils.getInstance()
+                .gone(mPbReviewLoading, mTvThereIsNoReview)
+                .visible(mRvReviewList);
+        Log.d(TAG, "Showing reviews");
+    }
+
+    private void showNoReviews() {
+        ViewUtils.getInstance()
+                .gone(mPbReviewLoading, mRvReviewList)
+                .visible(mTvThereIsNoReview);
+        Log.d(TAG, "There's no reviews to be showed");
+    }
+
+    private void showLoadingReviews() {
+        ViewUtils.getInstance()
+                .gone(mTvThereIsNoReview, mRvReviewList)
+                .visible(mPbReviewLoading);
+        Log.d(TAG, "loading reviews");
     }
 }
