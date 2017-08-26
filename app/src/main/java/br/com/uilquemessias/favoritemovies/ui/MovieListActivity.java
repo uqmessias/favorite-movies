@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.MovieApi;
+import br.com.uilquemessias.favoritemovies.services.favorites.FavoriteManager;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
 import br.com.uilquemessias.favoritemovies.services.models.MovieResult;
 import br.com.uilquemessias.favoritemovies.ui.adapters.GridSpacingItemDecoration;
@@ -35,6 +36,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
 
     private static final String SPINNER_ITEM_TOP_RATED = "Top rated";
     private static final String SPINNER_ITEM_MOST_POPULAR = "Most popular";
+    private static final String SPINNER_ITEM_FAVORITES = "Favorites";
     private static final String TAG = "MovieListActivity";
     private static final String MOVIES = "MOVIES";
     private static final String SELECTED_ORDER = "SELECTED_ORDER";
@@ -71,7 +73,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
-                new String[]{SPINNER_ITEM_TOP_RATED, SPINNER_ITEM_MOST_POPULAR}
+                new String[]{SPINNER_ITEM_TOP_RATED, SPINNER_ITEM_MOST_POPULAR, SPINNER_ITEM_FAVORITES}
         );
 
         mSpinnerOrderBy.setAdapter(spinnerAdapter);
@@ -95,6 +97,12 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
                     if (itemSelected.equals(SPINNER_ITEM_MOST_POPULAR)) {
                         Log.d(TAG, "most popular selected");
                         tryShowMostPopular();
+                        return;
+                    }
+
+                    if (itemSelected.equals(SPINNER_ITEM_FAVORITES)) {
+                        Log.d(TAG, "favorites selected");
+                        tryShowFavorites();
                         return;
                     }
                 }
@@ -160,6 +168,18 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     private void tryShowMostPopular() {
         showLoading();
         MovieApi.instance().getPopularMovies(this);
+    }
+
+    private void tryShowFavorites() {
+        showLoading();
+        final List<Movie> allMovies = FavoriteManager.instance().listAllMovies();
+
+        if (!allMovies.isEmpty()) {
+            mMoviesAdapter.setMovies(allMovies);
+            showMovies();
+        } else {
+            showEmpty();
+        }
     }
 
     private void showMovies() {

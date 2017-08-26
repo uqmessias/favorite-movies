@@ -6,9 +6,9 @@
 
 ## User Interface - Function
 
-- [ ] When a user changes the sort criteria (most popular, highest rated, and favorites) the main view gets updated correctly.
+- [x] When a user changes the sort criteria (most popular, highest rated, and favorites) the main view gets updated correctly.
 - [x] When a trailer is selected, app uses an Intent to launch the trailer.
-- [ ] In the movies detail screen, a user can tap a button(for example, a star) to mark it as a Favorite.
+- [x] In the movies detail screen, a user can tap a button(for example, a star) to mark it as a Favorite.
 
 ## Network API Implementation
 

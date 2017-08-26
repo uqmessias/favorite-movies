@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -21,6 +22,7 @@ import java.util.Locale;
 
 import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.MovieApi;
+import br.com.uilquemessias.favoritemovies.services.favorites.FavoriteManager;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
 import br.com.uilquemessias.favoritemovies.services.models.ReviewResult;
 import br.com.uilquemessias.favoritemovies.services.models.Video;
@@ -31,6 +33,7 @@ import br.com.uilquemessias.favoritemovies.ui.adapters.VideosAdapter;
 import br.com.uilquemessias.favoritemovies.utils.ViewUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class MovieDetailsActivity extends AppCompatActivity implements VideosAdapter.ListItemClickListener {
@@ -198,6 +201,27 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
         Log.d(TAG, "key: " + key + " - videoUri: " + videoUri);
         final Intent youtubeIntent = new Intent(Intent.ACTION_VIEW, videoUri);
         startActivity(youtubeIntent);
+    }
+
+    @OnClick(R.id.im_movie_favorite)
+    void onFavoriteClick(final ImageView imMovieFavorite) {
+        final boolean isFavorite = FavoriteManager.instance().getMovie(mMovie.getId()) != null;
+
+        if (isFavorite) {
+            FavoriteManager.instance().removeMovie(mMovie.getId());
+            FavoriteManager.instance().removeReviews(mMovie.getId());
+            FavoriteManager.instance().removeVideos(mMovie.getId());
+            imMovieFavorite.setImageResource(R.drawable.ic_favorite_off);
+
+            Toast.makeText(this, "Movie removed from favorites", Toast.LENGTH_SHORT).show();
+        } else {
+            FavoriteManager.instance().putMovie(mMovie);
+            FavoriteManager.instance().putReviews(mMovie.getId(), mReviewsAdapter.getReviews());
+            FavoriteManager.instance().putVideos(mMovie.getId(), mVideosAdapter.getVideos());
+            imMovieFavorite.setImageResource(R.drawable.ic_favorite_on);
+
+            Toast.makeText(this, "Movie added to favorites", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void tryShowVideos() {
