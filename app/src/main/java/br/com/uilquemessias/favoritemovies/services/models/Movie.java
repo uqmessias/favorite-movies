@@ -51,28 +51,56 @@ public class Movie implements Parcelable {
         overview = in.readString();
     }
 
+    public void setId(final int id) {
+        this.id = id;
+    }
+
     public int getId() {
         return id;
+    }
+
+    public void setPosterPath(final String posterPath) {
+        this.posterPath = posterPath;
     }
 
     public String getPosterPath() {
         return posterPath;
     }
 
+    public void setOverview(final String overview) {
+        this.overview = overview;
+    }
+
     public String getOverview() {
         return overview;
+    }
+
+    public void setReleaseDate(final String releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
     public String getReleaseDate() {
         return releaseDate;
     }
 
+    public void setTitle(final String title) {
+        this.title = title;
+    }
+
     public String getTitle() {
         return title;
     }
 
+    public void setBackdropPath(final String backdropPath) {
+        this.backdropPath = backdropPath;
+    }
+
     public String getBackdropPath() {
         return backdropPath;
+    }
+
+    public void setVoteAverage(final Float voteAverage) {
+        this.voteAverage = voteAverage;
     }
 
     public Float getVoteAverage() {

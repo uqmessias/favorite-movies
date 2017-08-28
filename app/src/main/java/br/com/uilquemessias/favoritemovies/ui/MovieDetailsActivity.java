@@ -64,11 +64,14 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
     ProgressBar mPbVideoLoading;
     @BindView(R.id.pb_review_loading)
     ProgressBar mPbReviewLoading;
+    @BindView(R.id.im_movie_favorite)
+    ImageView imMovieFavorite;
 
     private Movie mMovie;
 
     private VideosAdapter mVideosAdapter;
     private ReviewsAdapter mReviewsAdapter;
+    private FavoriteManager mFavoriteManager;
 
     private Picasso mPicasso;
     private Unbinder mUnbinder;
@@ -138,6 +141,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
             return;
         }
 
+        mFavoriteManager = new FavoriteManager(this);
+
         bindViews();
 
         mVideosAdapter = new VideosAdapter(this);
@@ -165,12 +170,17 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
             mUnbinder.unbind();
         }
 
+        if (mFavoriteManager != null) {
+            mFavoriteManager.close();
+        }
+
         super.onDestroy();
     }
 
     private void bindViews() {
         final Uri urlPoster = Uri.parse(MoviesAdapter.BASE_IMAGE_URL + mMovie.getPosterPath());
         final Uri urlBackdrop = Uri.parse(MoviesAdapter.BASE_IMAGE_LARGER_URL + mMovie.getBackdropPath());
+        final boolean isFavorite = mFavoriteManager.containsMovieWithId(mMovie.getId());
 
         mPicasso = Picasso.with(this);
         mPicasso.load(urlPoster)
@@ -184,6 +194,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
         mTvReleaseDate.setText(mMovie.getReleaseDate());
         mTvVoteAverage.setText(String.format(Locale.US, "%.2f", mMovie.getVoteAverage()));
         mTvOverview.setText(mMovie.getOverview());
+        imMovieFavorite.setImageResource(isFavorite ? R.drawable.ic_favorite_on : R.drawable.ic_favorite_off);
     }
 
     @Override
@@ -205,19 +216,19 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
 
     @OnClick(R.id.im_movie_favorite)
     void onFavoriteClick(final ImageView imMovieFavorite) {
-        final boolean isFavorite = FavoriteManager.instance().getMovie(mMovie.getId()) != null;
+        final boolean isFavorite = mFavoriteManager.containsMovieWithId(mMovie.getId());
 
         if (isFavorite) {
-            FavoriteManager.instance().removeMovie(mMovie.getId());
-            FavoriteManager.instance().removeReviews(mMovie.getId());
-            FavoriteManager.instance().removeVideos(mMovie.getId());
+            mFavoriteManager.removeMovie(mMovie.getId());
+            mFavoriteManager.removeReviews(mMovie.getId());
+            mFavoriteManager.removeVideos(mMovie.getId());
             imMovieFavorite.setImageResource(R.drawable.ic_favorite_off);
 
             Toast.makeText(this, "Movie removed from favorites", Toast.LENGTH_SHORT).show();
         } else {
-            FavoriteManager.instance().putMovie(mMovie);
-            FavoriteManager.instance().putReviews(mMovie.getId(), mReviewsAdapter.getReviews());
-            FavoriteManager.instance().putVideos(mMovie.getId(), mVideosAdapter.getVideos());
+            mFavoriteManager.putMovie(mMovie);
+            mFavoriteManager.putReviews(mMovie.getId(), mReviewsAdapter.getReviews());
+            mFavoriteManager.putVideos(mMovie.getId(), mVideosAdapter.getVideos());
             imMovieFavorite.setImageResource(R.drawable.ic_favorite_on);
 
             Toast.makeText(this, "Movie added to favorites", Toast.LENGTH_SHORT).show();

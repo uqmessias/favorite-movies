@@ -62,12 +62,14 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     private MoviesAdapter mMoviesAdapter;
     private boolean mIsFirstSelection = true;
     private Unbinder mUnbinder;
+    private FavoriteManager mFavoriteManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
         mUnbinder = ButterKnife.bind(this);
+        mFavoriteManager = new FavoriteManager(this);
 
         setSupportActionBar(mToolbar);
 
@@ -148,6 +150,10 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
             mUnbinder.unbind();
         }
 
+        if (mFavoriteManager != null) {
+            mFavoriteManager.close();
+        }
+
         super.onDestroy();
     }
 
@@ -172,7 +178,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
 
     private void tryShowFavorites() {
         showLoading();
-        final List<Movie> allMovies = FavoriteManager.instance().listAllMovies();
+        final List<Movie> allMovies = mFavoriteManager.listAllMovies();
 
         if (!allMovies.isEmpty()) {
             mMoviesAdapter.setMovies(allMovies);
