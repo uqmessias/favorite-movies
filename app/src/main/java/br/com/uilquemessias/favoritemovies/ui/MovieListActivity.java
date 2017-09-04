@@ -59,6 +59,8 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     @BindInt(R.integer.col_span)
     int mColSpan;
 
+    private ArrayAdapter<String> mSpinnerAdapter;
+
     private MoviesAdapter mMoviesAdapter;
     private boolean mIsFirstSelection = true;
     private Unbinder mUnbinder;
@@ -73,12 +75,11 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
 
         setSupportActionBar(mToolbar);
 
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
+        mSpinnerAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
                 new String[]{SPINNER_ITEM_TOP_RATED, SPINNER_ITEM_MOST_POPULAR, SPINNER_ITEM_FAVORITES}
         );
-
-        mSpinnerOrderBy.setAdapter(spinnerAdapter);
+        mSpinnerOrderBy.setAdapter(mSpinnerAdapter);
         mSpinnerOrderBy.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -142,6 +143,17 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
         mRvMovieList.setHasFixedSize(true);
         mRvMovieList.addItemDecoration(new GridSpacingItemDecoration(mColSpan, 20, true));
         mRvMovieList.setAdapter(mMoviesAdapter);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        final String itemSelected = (String) (mSpinnerOrderBy != null ? mSpinnerOrderBy.getSelectedItem() : null);
+
+        if (!TextUtils.isEmpty(itemSelected) && itemSelected.equals(SPINNER_ITEM_FAVORITES)) {
+            Log.d(TAG, "favorites selected from restart");
+            tryShowFavorites();
+        }
     }
 
     @Override
