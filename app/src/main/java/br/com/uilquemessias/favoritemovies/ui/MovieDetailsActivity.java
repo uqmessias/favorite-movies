@@ -24,9 +24,8 @@ import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.MovieApi;
 import br.com.uilquemessias.favoritemovies.services.favorites.FavoriteManager;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
-import br.com.uilquemessias.favoritemovies.services.models.ReviewResult;
+import br.com.uilquemessias.favoritemovies.services.models.Review;
 import br.com.uilquemessias.favoritemovies.services.models.Video;
-import br.com.uilquemessias.favoritemovies.services.models.VideoResult;
 import br.com.uilquemessias.favoritemovies.ui.adapters.MoviesAdapter;
 import br.com.uilquemessias.favoritemovies.ui.adapters.ReviewsAdapter;
 import br.com.uilquemessias.favoritemovies.ui.adapters.VideosAdapter;
@@ -77,12 +76,14 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
     private Unbinder mUnbinder;
     private MovieApi.VideoResultListener mVideoListener = new MovieApi.VideoResultListener() {
         @Override
-        public void onSuccessResult(VideoResult results) {
+        public void onSuccessResult(final List<Video> videos, int totalVideos, int totalPages) {
             final List<String> videoList = new ArrayList<>();
 
-            for (final Video video : results.getVideos()) {
-                if (Video.SITE_YOUTUBE.equalsIgnoreCase(video.getSite())) {
-                    videoList.add(video.getKey());
+            if (videos != null) {
+                for (final Video video : videos) {
+                    if (Video.SITE_YOUTUBE.equalsIgnoreCase(video.getSite())) {
+                        videoList.add(video.getKey());
+                    }
                 }
             }
 
@@ -102,9 +103,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
     };
     private MovieApi.ReviewResultListener mReviewListener = new MovieApi.ReviewResultListener() {
         @Override
-        public void onSuccessResult(ReviewResult results) {
-            mReviewsAdapter.setReviews(results.getReviews());
-            if (results.getReviews().isEmpty()) {
+        public void onSuccessResult(final List<Review> reviews, int totalVideos, int totalPages) {
+            mReviewsAdapter.setReviews(reviews);
+            if (reviews != null && reviews.isEmpty()) {
                 showNoReviews();
             } else {
                 showReviews();

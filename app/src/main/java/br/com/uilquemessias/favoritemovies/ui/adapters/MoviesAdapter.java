@@ -1,7 +1,5 @@
 package br.com.uilquemessias.favoritemovies.ui.adapters;
 
-import android.content.res.Resources;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;

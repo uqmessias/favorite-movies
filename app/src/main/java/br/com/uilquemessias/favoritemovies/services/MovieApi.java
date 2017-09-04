@@ -1,9 +1,12 @@
 package br.com.uilquemessias.favoritemovies.services;
 
+import java.util.List;
+
 import br.com.uilquemessias.favoritemovies.BuildConfig;
-import br.com.uilquemessias.favoritemovies.services.models.MovieResult;
-import br.com.uilquemessias.favoritemovies.services.models.ReviewResult;
-import br.com.uilquemessias.favoritemovies.services.models.VideoResult;
+import br.com.uilquemessias.favoritemovies.services.models.Movie;
+import br.com.uilquemessias.favoritemovies.services.models.Result;
+import br.com.uilquemessias.favoritemovies.services.models.Review;
+import br.com.uilquemessias.favoritemovies.services.models.Video;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -16,7 +19,7 @@ public final class MovieApi {
     private static MovieApi sInstance;
 
     private final TheMovieDbService mService;
-    private Call<MovieResult> mLastCall;
+    private Call<Result<Movie>> mLastCall;
 
     private MovieApi() {
         Retrofit retrofit = new Retrofit.Builder()
@@ -34,12 +37,22 @@ public final class MovieApi {
         return sInstance;
     }
 
+    private Call<Result<Movie>> tryToCancelLastCall(final Call<Result<Movie>> lastCall, Call<Result<Movie>> call) {
+        if (lastCall != null && !lastCall.isCanceled() && !lastCall.isExecuted()) {
+            lastCall.cancel();
+        }
+
+        return call;
+    }
+
     public void getTopRatedMovies(final MovieResultListener movieListener) {
-        executeCall(mService.getTopRatedMovies(BuildConfig.THE_MOVIE_DB_APP_KEY), movieListener);
+        mLastCall = tryToCancelLastCall(mLastCall, mService.getTopRatedMovies(BuildConfig.THE_MOVIE_DB_APP_KEY));
+        executeCall(mLastCall, movieListener);
     }
 
     public void getPopularMovies(final MovieResultListener movieListener) {
-        executeCall(mService.getPopularMovies(BuildConfig.THE_MOVIE_DB_APP_KEY), movieListener);
+        mLastCall = tryToCancelLastCall(mLastCall, mService.getPopularMovies(BuildConfig.THE_MOVIE_DB_APP_KEY));
+        executeCall(mLastCall, movieListener);
     }
 
     public void getVideosByMovies(final int movieId, final VideoResultListener videoListener) {
@@ -50,53 +63,44 @@ public final class MovieApi {
         executeCall(mService.getReviewsByMovies(movieId, BuildConfig.THE_MOVIE_DB_APP_KEY), reviewListener);
     }
 
-    private <T> void executeCall(final Call<T> call, final ResultListener<T> listener) {
+    private <T> void executeCall(final Call<Result<T>> call, final ResultListener<T> listener) {
         if (listener == null) {
             return;
         }
 
-        if (mLastCall != null && !mLastCall.isCanceled() && !mLastCall.isExecuted()) {
-            mLastCall.cancel();
-        }
-
-        try {
-            mLastCall = (Call<MovieResult>) call;
-        } finally {
-            // the last call doesn't exists
-        }
-
-        call.enqueue(new Callback<T>() {
+        call.enqueue(new Callback<Result<T>>() {
             @Override
-            public void onResponse(Call<T> call, Response<T> response) {
-                if (response.isSuccessful()) {
-                    listener.onSuccessResult(response.body());
+            public void onResponse(Call<Result<T>> call, Response<Result<T>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    final Result<T> result = response.body();
+                    listener.onSuccessResult(result.getResults(), result.getTotalResults(), result.getTotalPages());
                 } else {
                     listener.onFailure(new RuntimeException(response.message()));
                 }
             }
 
             @Override
-            public void onFailure(Call<T> call, Throwable t) {
+            public void onFailure(Call<Result<T>> call, Throwable t) {
                 listener.onFailure(t);
             }
         });
     }
 
     public interface ResultListener<T> {
-        void onSuccessResult(T results);
+        void onSuccessResult(List<T> results, int totalResults, int totalPages);
 
         void onFailure(Throwable exception);
     }
 
-    public interface MovieResultListener extends ResultListener<MovieResult> {
+    public interface MovieResultListener extends ResultListener<Movie> {
         // listener for Movies
     }
 
-    public interface VideoResultListener extends ResultListener<VideoResult> {
+    public interface VideoResultListener extends ResultListener<Video> {
         // listener for Videos
     }
 
-    public interface ReviewResultListener extends ResultListener<ReviewResult> {
+    public interface ReviewResultListener extends ResultListener<Review> {
         // listener for Reviews
     }
 }

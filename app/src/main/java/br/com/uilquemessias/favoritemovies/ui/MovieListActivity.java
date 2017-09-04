@@ -23,7 +23,6 @@ import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.MovieApi;
 import br.com.uilquemessias.favoritemovies.services.favorites.FavoriteManager;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
-import br.com.uilquemessias.favoritemovies.services.models.MovieResult;
 import br.com.uilquemessias.favoritemovies.ui.adapters.GridSpacingItemDecoration;
 import br.com.uilquemessias.favoritemovies.ui.adapters.MoviesAdapter;
 import br.com.uilquemessias.favoritemovies.utils.ViewUtils;
@@ -231,14 +230,14 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     }
 
     @Override
-    public void onSuccessResult(MovieResult movies) {
-        if (movies == null || movies.getMovies() == null) {
+    public void onSuccessResult(List<Movie> movies, int totalMovies, int totalPages) {
+        if (movies == null) {
             showError();
             return;
         }
 
-        if (movies.getTotalResults() >= 1) {
-            mMoviesAdapter.setMovies(movies.getMovies());
+        if (totalMovies >= 1) {
+            mMoviesAdapter.setMovies(movies);
             showMovies();
             return;
         }
