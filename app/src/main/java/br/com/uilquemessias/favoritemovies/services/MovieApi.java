@@ -1,6 +1,6 @@
 package br.com.uilquemessias.favoritemovies.services;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import br.com.uilquemessias.favoritemovies.BuildConfig;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
@@ -87,7 +87,7 @@ public final class MovieApi {
     }
 
     public interface ResultListener<T> {
-        void onSuccessResult(List<T> results, int totalResults, int totalPages);
+        void onSuccessResult(ArrayList<T> results, int totalResults, int totalPages);
 
         void onFailure(Throwable exception);
     }

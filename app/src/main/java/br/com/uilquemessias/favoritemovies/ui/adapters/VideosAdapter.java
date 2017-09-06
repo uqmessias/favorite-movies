@@ -25,9 +25,9 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.VideoViewH
     private static final String BASE_VIDEO_URL = "https://www.youtube.com/watch?v=%s";
 
     private final ListItemClickListener mOnClickListener;
-    private List<String> mVideosKeys;
+    private ArrayList<String> mVideosKeys;
 
-    public VideosAdapter(final ListItemClickListener onClickItemListener, List<String> videosKeys) {
+    public VideosAdapter(final ListItemClickListener onClickItemListener, ArrayList<String> videosKeys) {
         Log.d(TAG, videosKeys.size() + " items loaded");
         mVideosKeys = videosKeys;
         mOnClickListener = onClickItemListener;
@@ -55,12 +55,12 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.VideoViewH
         return mVideosKeys.size();
     }
 
-    public void setVideos(List<String> movies) {
+    public void setVideos(ArrayList<String> movies) {
         this.mVideosKeys = movies;
         notifyDataSetChanged();
     }
 
-    public List<String> getVideos() {
+    public ArrayList<String> getVideos() {
         return mVideosKeys;
     }
 

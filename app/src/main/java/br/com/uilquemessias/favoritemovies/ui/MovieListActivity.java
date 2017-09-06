@@ -1,7 +1,11 @@
 package br.com.uilquemessias.favoritemovies.ui;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,12 +20,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.MovieApi;
-import br.com.uilquemessias.favoritemovies.services.favorites.FavoriteManager;
+import br.com.uilquemessias.favoritemovies.services.favorites.FavoriteHelper;
+import br.com.uilquemessias.favoritemovies.services.favorites.FavoriteMovieContract;
 import br.com.uilquemessias.favoritemovies.services.models.Movie;
 import br.com.uilquemessias.favoritemovies.ui.adapters.GridSpacingItemDecoration;
 import br.com.uilquemessias.favoritemovies.ui.adapters.MoviesAdapter;
@@ -31,7 +35,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class MovieListActivity extends AppCompatActivity implements MovieApi.MovieResultListener, MoviesAdapter.ListItemClickListener {
+public class MovieListActivity extends AppCompatActivity implements MovieApi.MovieResultListener, MoviesAdapter.ListItemClickListener, LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
 
     private static final String SPINNER_ITEM_TOP_RATED = "Top rated";
     private static final String SPINNER_ITEM_MOST_POPULAR = "Most popular";
@@ -39,6 +43,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     private static final String TAG = "MovieListActivity";
     private static final String MOVIES = "MOVIES";
     private static final String SELECTED_ORDER = "SELECTED_ORDER";
+    private static final int LIST_FAVORITES_LOADER_ID = 26;
 
     public static final String SELECTED_MOVIE = "SELECTED_MOVIE";
 
@@ -63,14 +68,12 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     private MoviesAdapter mMoviesAdapter;
     private boolean mIsFirstSelection = true;
     private Unbinder mUnbinder;
-    private FavoriteManager mFavoriteManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
         mUnbinder = ButterKnife.bind(this);
-        mFavoriteManager = new FavoriteManager(this);
 
         setSupportActionBar(mToolbar);
 
@@ -132,7 +135,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
             mSpinnerOrderBy.setSelection(orderSelectionPosition);
             mIsFirstSelection = false;
         } else {
-            final List<Movie> movies = savedInstanceState.getParcelableArrayList(MOVIES + orderSelectionPosition);
+            final ArrayList<Movie> movies = savedInstanceState.getParcelableArrayList(MOVIES + orderSelectionPosition);
             Log.d(TAG, movies.size() + " items restored from bundle");
 
             mMoviesAdapter = new MoviesAdapter(this, movies);
@@ -161,10 +164,6 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
             mUnbinder.unbind();
         }
 
-        if (mFavoriteManager != null) {
-            mFavoriteManager.close();
-        }
-
         super.onDestroy();
     }
 
@@ -188,15 +187,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     }
 
     private void tryShowFavorites() {
-        showLoading();
-        final List<Movie> allMovies = mFavoriteManager.listAllMovies();
-
-        if (!allMovies.isEmpty()) {
-            mMoviesAdapter.setMovies(allMovies);
-            showMovies();
-        } else {
-            showEmpty();
-        }
+        getSupportLoaderManager().initLoader(LIST_FAVORITES_LOADER_ID, new Bundle(), this);
     }
 
     private void showMovies() {
@@ -230,7 +221,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     }
 
     @Override
-    public void onSuccessResult(List<Movie> movies, int totalMovies, int totalPages) {
+    public void onSuccessResult(ArrayList<Movie> movies, int totalMovies, int totalPages) {
         if (movies == null) {
             showError();
             return;
@@ -264,5 +255,62 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
         final Intent movieIntent = new Intent(this, MovieDetailsActivity.class);
         movieIntent.putExtra(SELECTED_MOVIE, movie);
         startActivity(movieIntent);
+    }
+
+    @Override
+    public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle args) {
+        return new AsyncTaskLoader<ArrayList<Movie>>(this) {
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                showLoading();
+                forceLoad();
+            }
+
+            @Override
+            public ArrayList<Movie> loadInBackground() {
+                final ArrayList<Movie> favorites = new ArrayList<>();
+                Cursor cursor = null;
+
+                try {
+                    cursor = getContentResolver()
+                            .query(FavoriteMovieContract.MovieEntry.CONTENT_URI,
+                                    null, null, null, null);
+
+                    if (cursor != null) {
+                        while (cursor.moveToNext()) {
+                            final Movie movie = FavoriteHelper.getMovieFromCursor(cursor);
+
+                            if (movie != null) {
+                                favorites.add(movie);
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } finally {
+                    if (cursor != null) {
+                        cursor.close();
+                    }
+                }
+
+                return favorites;
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
+        if (!movies.isEmpty()) {
+            mMoviesAdapter.setMovies(movies);
+            showMovies();
+        } else {
+            showEmpty();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<ArrayList<Movie>> loader) {
+        // do nothing
     }
 }

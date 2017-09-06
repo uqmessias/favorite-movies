@@ -3,14 +3,14 @@ package br.com.uilquemessias.favoritemovies.services.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class Result<TResult> {
 
     @Expose
     private Integer page;
     @Expose
-    private List<TResult> results = null;
+    private ArrayList<TResult> results = null;
     @SerializedName("total_results")
     private int totalResults;
     @SerializedName("total_pages")
@@ -24,11 +24,11 @@ public class Result<TResult> {
         this.page = page;
     }
 
-    public List<TResult> getResults() {
+    public ArrayList<TResult> getResults() {
         return results;
     }
 
-    public void setResults(List<TResult> results) {
+    public void setResults(ArrayList<TResult> results) {
         this.results = results;
     }
 

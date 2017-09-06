@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import br.com.uilquemessias.favoritemovies.R;
 import br.com.uilquemessias.favoritemovies.services.models.Review;
@@ -19,9 +18,9 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.MovieVie
 
     private static final String TAG = "ReviewsAdapter";
 
-    private List<Review> mReviews;
+    private ArrayList<Review> mReviews;
 
-    public ReviewsAdapter(final List<Review> reviews) {
+    public ReviewsAdapter(final ArrayList<Review> reviews) {
         Log.d(TAG, reviews.size() + " items loaded");
         mReviews = reviews;
     }
@@ -48,12 +47,12 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.MovieVie
         return mReviews.size();
     }
 
-    public void setReviews(List<Review> review) {
+    public void setReviews(ArrayList<Review> review) {
         this.mReviews = review;
         notifyDataSetChanged();
     }
 
-    public List<Review> getReviews() {
+    public ArrayList<Review> getReviews() {
         return mReviews;
     }
 
