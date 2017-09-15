@@ -103,7 +103,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw unsupportedOperationException(uri);
         }
 
         final Context context = getContext();
@@ -142,7 +142,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
                 return vndCursorItem + FavoriteMovieContract.PATH_VIDEOS;
 
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw unsupportedOperationException(uri);
         }
     }
 
@@ -167,7 +167,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
             case REVIEW_WITH_ID:
             case VIDEO_WITH_ID:
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw unsupportedOperationException(uri);
         }
 
         final Context context = getContext();
@@ -212,7 +212,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
             case REVIEW_WITH_ID:
             case VIDEO_WITH_ID:
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw unsupportedOperationException(uri);
         }
 
         if (returnUri == null) {
@@ -267,7 +267,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw unsupportedOperationException(uri);
         }
 
         final Context context = getContext();
@@ -281,7 +281,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw unsupportedOperationException(uri);
     }
 
     private int bulkInsert(final SQLiteDatabase db, final String tableName, final ContentValues[] values) {
@@ -302,5 +302,9 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
         }
 
         return rowsInserted;
+    }
+
+    private UnsupportedOperationException unsupportedOperationException(final Uri uri) {
+        return new UnsupportedOperationException("Unknown uri: " + uri);
     }
 }

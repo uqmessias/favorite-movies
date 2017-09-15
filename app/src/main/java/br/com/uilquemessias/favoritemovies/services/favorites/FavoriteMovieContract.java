@@ -8,13 +8,13 @@ public final class FavoriteMovieContract {
         // nothing
     }
 
-    public static final String AUTHORITY = "br.com.uilquemessias.favoritemovies";
+    static final String AUTHORITY = "br.com.uilquemessias.favoritemovies";
 
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
-    public static final String PATH_MOVIES = "movies";
-    public static final String PATH_REVIEWS = "reviews";
-    public static final String PATH_VIDEOS = "videos";
+    static final String PATH_MOVIES = "movies";
+    static final String PATH_REVIEWS = "reviews";
+    static final String PATH_VIDEOS = "videos";
 
     public static class MovieEntry implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
@@ -59,13 +59,6 @@ public final class FavoriteMovieContract {
                 .appendPath(PATH_REVIEWS)
                 .build();
 
-        public static Uri getReviewById(final int reviewId) {
-            return CONTENT_URI
-                    .buildUpon()
-                    .appendPath(String.valueOf(reviewId))
-                    .build();
-        }
-
         static final String TABLE_NAME = "review";
 
         static final String COLUMN_NAME_MOVIE_ID = "movie_id";
@@ -77,13 +70,6 @@ public final class FavoriteMovieContract {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
                 .appendPath(PATH_VIDEOS)
                 .build();
-
-        public static Uri getVideoById(final int videoId) {
-            return CONTENT_URI
-                    .buildUpon()
-                    .appendPath(String.valueOf(videoId))
-                    .build();
-        }
 
         static final String TABLE_NAME = "video";
 
