@@ -153,10 +153,10 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case MOVIES:
-                rowsInserted += bulkInsert(db, FavoriteMovieContract.VideoEntry.TABLE_NAME, values);
+                rowsInserted += bulkInsert(db, FavoriteMovieContract.MovieEntry.TABLE_NAME, values);
                 break;
             case REVIEWS:
-                rowsInserted += bulkInsert(db, FavoriteMovieContract.VideoEntry.TABLE_NAME, values);
+                rowsInserted += bulkInsert(db, FavoriteMovieContract.ReviewEntry.TABLE_NAME, values);
                 break;
             case VIDEOS:
                 rowsInserted += bulkInsert(db, FavoriteMovieContract.VideoEntry.TABLE_NAME, values);
@@ -263,7 +263,7 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
                 break;
             case VIDEO_WITH_ID:
                 final String[] videoId = {uri.getPathSegments().get(1)};
-                rowsDeleted = db.delete(FavoriteMovieContract.ReviewEntry.TABLE_NAME, FavoriteMovieContract.ReviewEntry._ID + "=?", videoId);
+                rowsDeleted = db.delete(FavoriteMovieContract.VideoEntry.TABLE_NAME, FavoriteMovieContract.VideoEntry._ID + "=?", videoId);
                 break;
 
             default:

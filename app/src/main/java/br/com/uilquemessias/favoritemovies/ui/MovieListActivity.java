@@ -148,17 +148,6 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        final String itemSelected = (String) (mSpinnerOrderBy != null ? mSpinnerOrderBy.getSelectedItem() : null);
-
-        if (!TextUtils.isEmpty(itemSelected) && itemSelected.equals(SPINNER_ITEM_FAVORITES)) {
-            Log.d(TAG, "favorites selected from restart");
-            tryShowFavorites();
-        }
-    }
-
-    @Override
     protected void onDestroy() {
         if (mUnbinder != null) {
             mUnbinder.unbind();
@@ -187,7 +176,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
     }
 
     private void tryShowFavorites() {
-        getSupportLoaderManager().initLoader(LIST_FAVORITES_LOADER_ID, new Bundle(), this);
+        getSupportLoaderManager().restartLoader(LIST_FAVORITES_LOADER_ID, new Bundle(), this);
     }
 
     private void showMovies() {
@@ -263,8 +252,13 @@ public class MovieListActivity extends AppCompatActivity implements MovieApi.Mov
             @Override
             protected void onStartLoading() {
                 super.onStartLoading();
-                showLoading();
-                forceLoad();
+
+                final String itemSelected = (String) (mSpinnerOrderBy != null ? mSpinnerOrderBy.getSelectedItem() : null);
+
+                if (!TextUtils.isEmpty(itemSelected) && itemSelected.equals(SPINNER_ITEM_FAVORITES)) {
+                    showLoading();
+                    forceLoad();
+                }
             }
 
             @Override

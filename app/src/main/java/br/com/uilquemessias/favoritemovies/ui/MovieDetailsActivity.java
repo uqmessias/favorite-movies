@@ -130,8 +130,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements VideosAda
         }
     };
 
-    private boolean mIsFavorite = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
